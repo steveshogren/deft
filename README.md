@@ -22,7 +22,7 @@ A Clojure library that provides a most basic runtime shape-type checking.
 
 Deft lets you define a new kind of Clojure function, one that checks the "shape" of the parameters and the return values. It only checks maps for keys, since that is a common pain point. Let's jump to some examples.
 
-```
+```clojure
 ;; define some simple "typeshapes" (they are just vecs)
 (def Account [:id :balance])
 (def Pay [:amount])
@@ -38,7 +38,7 @@ Deft lets you define a new kind of Clojure function, one that checks the "shape"
 
 That wasn't so bad, it simply gives you some handy verification of the in's and out's of the function. But what about a more flexible partial usage?
 
-```
+```clojure
 ;; a [] prevents all checks
 (deft noTypes [num [] account [:balance]] []
   (+ num (:balance account)))
