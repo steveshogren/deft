@@ -5,12 +5,19 @@ A Clojure library that provides a most basic runtime shape-type checking.
 ## Usage - or - "Types? In clojure?! Are you crazy??!"
 
 "Types? In clojure?! Are you crazy??!"
+
 "No, no, _shape-types_. Shape-types are totally different than the normal overpowering types from the strict languages."
+
 "So, what, they still check at compile time?"
+
 "Nah, they only get checked at run-time, like code contracts."
+
 "That probably takes forever to change all your code! I'm too busy for that!"
+
 "Nope, it's totally a la carte, you can change just one function at a time, and you can prevent checking all the parameters."
+<br >
 "AWESOME!"
+
 *COMMENCE HIGH FIVES*
 
 Deft lets you define a new kind of Clojure function, one that checks the "shape" of the parameters and the return values. It only checks maps for keys, since that is a common pain point. Let's jump to some examples.
