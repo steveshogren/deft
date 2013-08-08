@@ -4,7 +4,7 @@
 (def check-types-in-deft true)
 
 (defn rand-string [x]
-  (symbol (str "auto_" (rand-int 1000000))))
+  (symbol (str "auto_" (rand-int 10000000))))
 
 (defn is-type [coll# type#]
   (reduce (fn [iret# k#]
@@ -14,8 +14,8 @@
           type#))
 
 (defmacro deft [name# & rest#]
-  "defnt [name doc? [param Type*] Type body]
-   (defnt walk [duck Duck] Duck
+  "deft [name doc? [param Type*] Type body]
+   (deft walk [duck Duck] Duck
      (body must return duck shape...))"
   (let [hasDoc# (string? (first rest#))
         doc# (if hasDoc# (first rest#) "")
