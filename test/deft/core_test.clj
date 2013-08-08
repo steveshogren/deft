@@ -10,9 +10,14 @@
   [account Account pay Pay] Account
   (assoc account :balance (+ (:amount pay) (:balance account))))
 
+(deft wrongRet [account Account pay Pay] Account
+  (+ 1 2)) 
+
 (deftest basic-test
   (testing "The basic deft macro"
-    (is (= (adds {:balance 2 :id 1} {:amount 2}) {:balance 4 :id 1}))))
+    (is (= (adds {:balance 2 :id 1} {:amount 2}) {:balance 4 :id 1}))
+    (is (thrown-with-msg? Exception #"Passed an invalid 'typeshape'" (adds {:balance 2} {:amount 2})))
+    (is (thrown-with-msg? Exception #"Returned an invalid 'typeshape'" (wrongRet {:balance 2 :id 1} {:amount 2})))))
 
 ;; No types
 (deft noTypes [num [] account [:balance]] []

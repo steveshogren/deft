@@ -41,8 +41,8 @@
                    ret# ~body#]
                (if (is-type ret# ~rett#)
                  ret#
-                 (throw (Exception. (str ~name# " returned an invalid 'typeshape'")))))
-             (throw (Exception. (str "Passed an invalid 'typeshape' to " ~name#))))
+                 (throw (Exception. (str "Returned an invalid 'typeshape'")))))
+             (throw (Exception. (str "Passed an invalid 'typeshape'"))))
            (let [~@putBackArgs#]
              ~body#))))
     (throw (Exception. (str "Missing a typeshape from the parameter vec"))))))
