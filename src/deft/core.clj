@@ -27,9 +27,11 @@
           argnames# (vec (map first argpairs#))
           argtypes# (vec (map second argpairs#))
           cleanedArgs# (vec (map rand-string argnames#))
-          putBackArgs# (mapcat (fn [x] x) (map vector argnames# cleanedArgs#))]
+          putBackArgs# (mapcat (fn [y#] y#) (map vector argnames# cleanedArgs#))
+          expandedArgs# (vec (mapcat (fn [x#] x#) (map vector argnames# argtypes#)))
+          arglists# (list [expandedArgs# (symbol "->") rett#])]
       `(defn ~name#
-         #_{:arglists (list (symbol (str (vec (mapcat (fn [x#] x#) (map vector '~argnames# ~argtypes#)))" -> " ~rett#)))
+         {:arglists '~arglists#
           :doc ~doc#}
          ~cleanedArgs#
          (if check-types-in-deft
