@@ -1,6 +1,5 @@
 (ns deft.core)
 
-
 (def check-types-in-deft true)
 
 (defn rand-string [x]
@@ -13,23 +12,27 @@
           true
           type#))
 
+(defn parse-defn-sig [args]
+  (let [hasDoc (string? (first args))
+        doc (if hasDoc (first args) "")
+        pargs (if hasDoc (second args) (first args))
+        rett (if hasDoc (nth args 2) (second args))
+        body (last args)]
+    {:doc doc :args pargs :body body :rett rett }))
+
 (defmacro deft [name# & rest#]
   "deft [name doc? [param Type*] Type body]
    (deft walk [duck Duck] Duck
      (body must return duck shape...))"
-  (let [hasDoc# (string? (first rest#))
-        doc# (if hasDoc# (first rest#) "")
-        args# (if hasDoc# (second rest#) (first rest#))
-        rett# (if hasDoc# (nth rest# 2) (second rest#))
-        body# (last rest#)]
-  (if (= 0 (mod (count args#) 2))
-    (let [argpairs# (partition 2 args#)
-          argnames# (vec (map first argpairs#))
-          argtypes# (vec (map second argpairs#))
-          cleanedArgs# (vec (map rand-string argnames#))
-          putBackArgs# (mapcat (fn [y#] y#) (map vector argnames# cleanedArgs#))
-          expandedArgs# (vec (mapcat (fn [x#] x#) (map vector argnames# argtypes#)))
-          arglists# (list [expandedArgs# (symbol "->") rett#])]
+  (let [{args# :args doc# :doc body# :body rett# :rett} (parse-defn-sig rest#)
+        argpairs# (partition 2 args#)
+        argnames# (vec (map first argpairs#))
+        argtypes# (vec (map second argpairs#))
+        cleanedArgs# (vec (map rand-string argnames#))
+        putBackArgs# (mapcat (fn [y#] y#) (map vector argnames# cleanedArgs#))
+        expandedArgs# (vec (mapcat (fn [x#] x#) (map vector argnames# argtypes#)))
+        arglists# (list [expandedArgs# (symbol "->") rett#])]
+    (if (= 0 (mod (count args#) 2))
       `(defn ~name#
          {:arglists '~arglists#
           :doc ~doc#}
@@ -46,6 +49,6 @@
                  (throw (Exception. (str "Returned an invalid 'typeshape'")))))
              (throw (Exception. (str "Passed an invalid 'typeshape'"))))
            (let [~@putBackArgs#]
-             ~body#))))
-    (throw (Exception. (str "Missing a typeshape from the parameter vec"))))))
+             ~body#)))
+      (throw (Exception. (str "Missing a typeshape from the parameter vec"))))))
 

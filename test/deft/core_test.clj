@@ -4,13 +4,14 @@
 
 ;; Basics
 (def Account [:id :balance])
-(def Pay [:amount])
+(def Payment [:amount])
 
-(deft adds "Adds a payment to an account"
-  [account Account pay Pay] Account
+
+(deft adds "Adds a payment to an account" 
+  [account Account pay Payment] Account
   (assoc account :balance (+ (:amount pay) (:balance account))))
 
-(deft wrongRet [account Account pay Pay] Account
+(deft wrongRet [account Account pay Payment] Account
   (+ 1 2)) 
 
 (deftest basic-test
@@ -60,6 +61,7 @@
 ;;Disable all type checking
 (def check-types-in-defnt false)
 (adds 2 2)
+(def check-types-in-defnt true)
 ;; NullPointerException
 
 ;; You can disable/circumvent typeshape checking
