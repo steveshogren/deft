@@ -6,8 +6,7 @@
 (def Account [:id :balance])
 (def Payment [:amount])
 
-
-(deft adds "Adds a payment to an account" 
+(deft adds "Adds a payment to an account" {}
   [account Account pay Payment] Account
   (assoc account :balance (+ (:amount pay) (:balance account))))
 
@@ -43,9 +42,8 @@
 
 (deftest defrecord_test
   (testing "Allows defrecords as shapetypes"
+    (is (thrown-with-msg? Exception #"Passed an invalid 'typeshape'" (get-name 1)))
     (is (= (get-name (Person. "t")) "t"))))
-
-;;(instance? Person {:name "o"})
 
 
 (comment

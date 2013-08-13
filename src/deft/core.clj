@@ -5,28 +5,32 @@
 (defn rand-string [x]
   (symbol (str "auto_" (rand-int 10000000))))
 
-(defn is-type [coll# type#]
-  (if (vector? type#) 
-    (reduce (fn [iret# k#]
-              (and iret#
-                   (contains? coll# k#)))
+(defn is-type [coll type]
+  (if (vector? type) 
+    (reduce (fn [iret k]
+              (and iret
+                   (contains? coll k)))
             true
-            type#)
-    (instance? type# coll#)))
+            type)
+    (instance? type coll)))
 
 (defn parse-defn-sig [args]
   (let [hasDoc (string? (first args))
         doc (if hasDoc (first args) "")
-        pargs (if hasDoc (second args) (first args))
-        rett (if hasDoc (nth args 2) (second args))
+        args (if hasDoc (rest args) args)
+        hasAttr (map? (first args))
+        attr-map (if hasAttr (first args) {})
+        args (if hasAttr (rest args) args)
+        pargs (first args)
+        rett (second args)
         body (last args)]
-    {:doc doc :args pargs :body body :rett rett }))
+    {:doc doc :args pargs :body body :rett rett :attr-map attr-map}))
 
 (defmacro deft [name# & rest#]
   "deft [name doc? [param Type*] Type body]
    (deft walk [duck Duck] Duck
      (body must return duck shape...))"
-  (let [{args# :args doc# :doc body# :body rett# :rett} (parse-defn-sig rest#)
+  (let [{args# :args doc# :doc body# :body rett# :rett attrmap# :attr-map} (parse-defn-sig rest#)
         argpairs# (partition 2 args#)
         argnames# (vec (map first argpairs#))
         argtypes# (vec (map second argpairs#))
