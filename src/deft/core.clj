@@ -7,11 +7,13 @@
   (symbol (str "auto_" (rand-int 10000000))))
 
 (defn is-type [coll# type#]
-  (reduce (fn [iret# k#]
-            (and iret#
-                 (contains? coll# k#)))
-          true
-          type#))
+  (if (vector? type#) 
+    (reduce (fn [iret# k#]
+              (and iret#
+                   (contains? coll# k#)))
+            true
+            type#)
+    (instance? type# coll#)))
 
 (defmacro deft [name# & rest#]
   "deft [name doc? [param Type*] Type body]
