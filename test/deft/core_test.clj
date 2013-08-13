@@ -37,6 +37,17 @@
   (testing "The deft macro"
     (is (= (addX {:x 1 :y 100} {:x 1 :y 100 :z 40}) {:y 100 :x 2}))))
 
+(defrecord Person [name])
+(deft get-name [p Person] []
+  (:name p))
+
+(deftest defrecord_test
+  (testing "Allows defrecords as shapetypes"
+    (is (= (get-name (Person. "t")) "t"))))
+
+;;(instance? Person {:name "o"})
+
+
 (comment
 (def Account [:id :balance])
 (def Pay [:amount])

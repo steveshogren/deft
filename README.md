@@ -2,22 +2,7 @@
 
 A Clojure library that provides basic runtime typeshape checking.
 
-The idea of a typeshape is to have functions define what "shape" of maps it needs as its parameters and return value. This will allow for better doc-strings later, which expand after each parameter notifiying you of what the expected "signatures" are.
-
-
-## "Types? In clojure?! Are you crazy??!"
-
-"No, no, _typeshapes_. Typeshapes are totally different than the normal overpowering types from the strict languages."
-
-"So, what, they still check at compile time?"
-
-"Nah, they only get checked at run-time, like code contracts."
-
-"That probably takes forever to change all your code! I'm too busy for that!"
-
-"Nope, it's totally a la carte, you can change just one function at a time, and you can prevent checking all the parameters."
-
-"Awesome"
+The idea of a typeshape is to have functions define what "shape" of maps it needs as its parameters and return value. This will allow for better doc-strings, which expand after each parameter notifiying you of what the expected "signatures" are.
 
 Deft lets you define a new kind of Clojure function, one that checks the "shape" of the parameters and the return values. It only checks maps for keys, since that is a common pain point in our code. Let's jump to some examples.
 
@@ -30,8 +15,10 @@ Deft lets you define a new kind of Clojure function, one that checks the "shape"
 (deft adds [account Account pay Pay] Account
     (assoc account :balance (+ (:amount pay) (:balance account))))
 
-(adds {:balance 2 :id 1} {:amount 2}) ;; {:balance 4 :id 1}
-(adds 1 1) ;;Exception Passed an invalid 'typeshape'
+(adds {:balance 2 :id 1} {:amount 2})
+;; => {:balance 4 :id 1}
+(adds 1 1)
+;; => Exception Passed an invalid 'typeshape'
 
 ```
 
@@ -41,7 +28,8 @@ That wasn't so bad, it simply gives you some handy verification of the in's and 
 ;; a [] prevents all checks
 (deft noTypes [num [] account [:balance]] []
   (+ num (:balance account)))
-(noTypes 1 {:balance 1}) ;; 2
+(noTypes 1 {:balance 1})
+;; => 2
 
 ```
 
@@ -54,7 +42,8 @@ Destructuring still works.
 (deft addX [pos Coord {x :x} Coord] Coord 
   (assoc pos :x (+ x (:x pos))))
 
-(addX {:x 1 :y 100} {:x 1 :y 100}) ;; {:y 100 :x 2}
+(addX {:x 1 :y 100} {:x 1 :y 100})
+;; => {:y 100 :x 2}
 
 ```
 
@@ -64,7 +53,8 @@ Passing in a larger map than needed is fine too.
 (deft adds [f [] s [:num]] []
   (+ f (:num s)))
 
-(adds 1 {:num 1 :date 2 :id 4}) ;; 2
+(adds 1 {:num 1 :date 2 :id 4})
+;; => 2
 
 ```
 
@@ -81,6 +71,20 @@ Clojure already has a fine code contracts system built in, and there is no need 
 ## Please Contribute!
 
 Pull requests considered promptly!
+
+## "Types? In clojure?! Are you crazy??!"
+
+"No, no, _typeshapes_. Typeshapes are totally different than the normal overpowering types from the strict languages."
+
+"So, what, they still check at compile time?"
+
+"Nah, they only get checked at run-time, like code contracts."
+
+"That probably takes forever to change all your code! I'm too busy for that!"
+
+"Nope, it's totally a la carte, you can change just one function at a time, and you can prevent checking all the parameters."
+
+"Awesome."
 
 ## License
 
