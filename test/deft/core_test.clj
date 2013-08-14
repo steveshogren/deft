@@ -6,7 +6,7 @@
 (def Account [:id :balance])
 (def Payment [:amount])
 
-(deft adds "Adds a payment to an account" {}
+(deft adds "Adds a payment to an account" {:doc "t"}
   [account Account pay Payment] Account
   (assoc account :balance (+ (:amount pay) (:balance account))))
 

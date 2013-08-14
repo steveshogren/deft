@@ -38,10 +38,12 @@
         putBackArgs# (mapcat (fn [y#] y#) (map vector argnames# cleanedArgs#))
         expandedArgs# (vec (mapcat (fn [x#] x#) (map vector argnames# argtypes#)))
         arglists# (list [expandedArgs# (symbol "->") rett#])]
+    #_(do (println attrmap#))
     (if (= 0 (mod (count args#) 2))
       `(defn ~name#
-         {:arglists '~arglists#
-          :doc ~doc#}
+         ~(merge attrmap#
+                 {:arglists `'~arglists#
+                  :doc doc#})
          ~cleanedArgs#
          (if check-types-in-deft
            (if (reduce (fn [oret# pair#] 
