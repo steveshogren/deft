@@ -7,7 +7,6 @@
 (def Account [:id :balance])
 (def Payment [:amount])
 
-#_(pprint (macroexpand))
 (deft adds "Adds a payment to an account" {:testmeta "test"}
   [account Account pay Payment] Account
   {:pre [(pos? (:amount pay))]}
@@ -19,7 +18,7 @@
 (deftest basic-test
   (testing "The basic deft macro"
     (is (= (adds {:balance 2 :id 1} {:amount 2}) {:balance 4 :id 1}))
-    #_(is (= (adds {:balance 2 :id 1} {:amount -2}) {}))
+    (is (thrown? AssertionError (adds {:balance 2 :id 1} {:amount -2})))
     (is (= (:testmeta (meta #'adds)) "test"))
     (is (thrown-with-msg? Exception #"Passed an invalid 'typeshape'" (adds {:balance 2} {:amount 2})))
     (is (thrown-with-msg? Exception #"Returned an invalid 'typeshape'" (wrongRet {:balance 2 :id 1} {:amount 2})))))
