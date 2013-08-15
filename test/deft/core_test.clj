@@ -6,7 +6,7 @@
 (def Account [:id :balance])
 (def Payment [:amount])
 
-(deft adds "Adds a payment to an account" {:doc "t"}
+(deft adds "Adds a payment to an account" {:testmeta "test"}
   [account Account pay Payment] Account
   (assoc account :balance (+ (:amount pay) (:balance account))))
 
@@ -16,6 +16,7 @@
 (deftest basic-test
   (testing "The basic deft macro"
     (is (= (adds {:balance 2 :id 1} {:amount 2}) {:balance 4 :id 1}))
+    (is (= (:testmeta (meta #'adds)) "test"))
     (is (thrown-with-msg? Exception #"Passed an invalid 'typeshape'" (adds {:balance 2} {:amount 2})))
     (is (thrown-with-msg? Exception #"Returned an invalid 'typeshape'" (wrongRet {:balance 2 :id 1} {:amount 2})))))
 
