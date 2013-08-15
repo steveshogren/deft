@@ -41,7 +41,7 @@
         argpairs (partition 2 args)
         argnames (vec (map first argpairs))
         argtypes (vec (map second argpairs))
-        cleanedArgs (vec (map rand-string argnames))
+        cleanedArgs (vec (map gensym argnames))
         putBackArgs (mapcat (fn [y] y) (map vector argnames cleanedArgs))
         expandedArgs (vec (mapcat (fn [x] x) (map vector argnames argtypes)))
         arglists (list [expandedArgs (symbol "->") rett])]
