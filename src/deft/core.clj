@@ -23,40 +23,48 @@
         args (if hasAttr (rest args) args)
         pargs (first args)
         rett (second args)
-        body (last args)]
-    {:doc doc :args pargs :body body :rett rett :attr-map attr-map}))
+        args (drop 2 args)
+        hasprepost (map? (first args))
+        prepost (if hasprepost (first args) {})
+        args (if hasprepost (rest args) args)
+        body (first args)]
+    {:doc doc :args pargs :body body
+     :rett rett :attr-map attr-map
+     :prepost prepost}))
 
-(defmacro deft [name# & rest#]
-  "deft [name doc? [param Type*] Type body]
-   (deft walk [duck Duck] Duck
+(defmacro deft [name & res]
+  ^{:doc "(deft walk [duck Duck] Duck
      (body must return duck shape...))"
-  (let [{args# :args doc# :doc body# :body rett# :rett attrmap# :attr-map} (parse-defn-sig rest#)
-        argpairs# (partition 2 args#)
-        argnames# (vec (map first argpairs#))
-        argtypes# (vec (map second argpairs#))
-        cleanedArgs# (vec (map rand-string argnames#))
-        putBackArgs# (mapcat (fn [y#] y#) (map vector argnames# cleanedArgs#))
-        expandedArgs# (vec (mapcat (fn [x#] x#) (map vector argnames# argtypes#)))
-        arglists# (list [expandedArgs# (symbol "->") rett#])]
-    #_(do (println attrmap#))
-    (if (= 0 (mod (count args#) 2))
-      `(defn ~name#
-         ~(merge attrmap#
-                 {:arglists `'~arglists#
-                  :doc doc#})
-         ~cleanedArgs#
+    :arglists '([name doc-string? attr-map? [params*] prepost-map? body] [name doc-string? attr-map? ([params*] prepost-map? body)+ attr-map?])}
+
+  (let [{args :args doc :doc body :body rett :rett attrmap :attr-map prepost :prepost} (parse-defn-sig res)
+        argpairs (partition 2 args)
+        argnames (vec (map first argpairs))
+        argtypes (vec (map second argpairs))
+        cleanedArgs (vec (map rand-string argnames))
+        putBackArgs (mapcat (fn [y] y) (map vector argnames cleanedArgs))
+        expandedArgs (vec (mapcat (fn [x] x) (map vector argnames argtypes)))
+        arglists (list [expandedArgs (symbol "->") rett])]
+    #_(do (println attrmap))
+    (if (= 0 (mod (count args) 2))
+      `(defn ~name
+         ~(merge attrmap
+                 {:arglists `'~arglists
+                  :doc doc})
+         ~cleanedArgs
+         ;;~prepost
          (if check-types-in-deft
            (if (reduce (fn [oret# pair#] 
                          (and oret# (is-type (first pair#) (second pair#))))
                        true
-                       (map vector ~cleanedArgs# ~argtypes#)) ;; all params match type
-             (let [~@putBackArgs#
-                   ret# ~body#]
-               (if (is-type ret# ~rett#)
+                       (map vector ~cleanedArgs ~argtypes)) ;; all params match type
+             (let [~@putBackArgs
+                   ret# ~body]
+               (if (is-type ret# ~rett)
                  ret#
                  (throw (Exception. (str "Returned an invalid 'typeshape'")))))
              (throw (Exception. (str "Passed an invalid 'typeshape'"))))
-           (let [~@putBackArgs#]
-             ~body#)))
+           (let [~@putBackArgs]
+             ~body)))
       (throw (Exception. (str "Missing a typeshape from the parameter vec"))))))
 
