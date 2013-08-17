@@ -13,26 +13,40 @@
             type)
     (instance? type coll)))
 
-(defn parse-defn-sig [args]
-  (let [hasDoc (string? (first args))
-        doc (if hasDoc (first args) "")
-        args (if hasDoc (rest args) args)
-        hasAttr (map? (first args))
-        attr-map (if hasAttr (first args) {})
-        args (if hasAttr (rest args) args)
-        pargs (first args)
+(defn ^{:t :b} t [a] a )
+(meta #'t)
+
+(deftrace parse-defn-sig [args]
+  (let [pargs (first args)
         rett (second args)
         args (drop 2 args)
         hasprepost (map? (first args))
         prepost (if hasprepost (first args) {})
         args (if hasprepost (rest args) args)
         body (first args)]
-    {:doc doc :args pargs :body body
-     :rett rett :attr-map attr-map
-     :prepost prepost}))
+    {:args pargs :body body
+     :rett rett :prepost prepost}))
+
+;;(parse-multi-sig '([first second] [] (body)))
+;;(parse-multi-sig '(([first] [] (body1)) ([first second] [] (body2))))
+(deftrace parse-multi-sig [args]
+  (map parse-defn-sig (if (list? (first args)) args (list args))))
+
 
 (defn clean-prepost [prepost args-and-gennames]
   (postwalk-replace (apply assoc {} args-and-gennames) prepost))
+
+(defn parse-common-sig
+  "Parses out the optional doc and attr-map from a function definition
+   (parse-common-sig '({:a 1} [arg1 arg2] (body)))"
+  [args]
+  (let [hasDoc (string? (first args))
+        doc (if hasDoc (first args) "")
+        args (if hasDoc (rest args) args)
+        hasAttr (map? (first args))
+        attr-map (if hasAttr (first args) {})
+        args (if hasAttr (rest args) args)]
+    [{:doc doc :attr-map attr-map} args]))
 
 (defmacro deft [name & res]
   ^{:doc "(deft walk [duck Duck] Duck
@@ -40,7 +54,8 @@
     :arglists '([name doc-string? attr-map? [params*] prepost-map? body]
                   [name doc-string? attr-map? ([params*] prepost-map? body)+ attr-map?])}
 
-  (let [{args :args doc :doc body :body rett :rett attrmap :attr-map prepost :prepost} (parse-defn-sig res)
+  (let [[{doc :doc attrmap :attr-map} res] (parse-common-sig res)
+        [{args :args doc :doc body :body rett :rett attrmap :attr-map prepost :prepost}] (parse-defn-sig res)
         argpairs (partition 2 args)
         argnames (vec (map first argpairs))
         argtypes (vec (map second argpairs))

@@ -40,6 +40,7 @@
   (testing "The deft macro"
     (is (= (addX {:x 1 :y 100} {:x 1 :y 100 :z 40}) {:y 100 :x 2}))))
 
+;; Records
 (defrecord Person [name])
 (deft get-name [p Person] []
   (:name p))
@@ -49,3 +50,14 @@
     (is (thrown-with-msg? Exception #"Passed an invalid 'typeshape'" (get-name 1)))
     (is (= (get-name (Person. "t")) "t"))))
 
+;; Multiple definitions
+(define Num [:val])
+(deft bad-add
+  ([num Num] Num (bad-add num {:val 0}))
+  ([num1 Num num2 Num] Num
+     (assoc num1 :val (+ (:val num1) (:val num2)))))
+
+(deftest multiple-definitions-test
+  (testing "The deft macro with multiple definitions"
+    (is (= (bad-add {:val 1}) {:val 1}))
+    (is (= (bad-add {:val 1} {:val 2}) {:val 3}))))
