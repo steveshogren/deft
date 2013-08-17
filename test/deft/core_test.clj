@@ -17,11 +17,15 @@
 
 (deftest basic-test
   (testing "The basic deft macro"
-    (is (= (adds {:balance 2 :id 1} {:amount 2}) {:balance 4 :id 1}))
-    (is (thrown? AssertionError (adds {:balance 2 :id 1} {:amount -2})))
-    (is (= (:testmeta (meta #'adds)) "test"))
-    (is (thrown-with-msg? Exception #"Passed an invalid 'typeshape'" (adds {:balance 2} {:amount 2})))
-    (is (thrown-with-msg? Exception #"Returned an invalid 'typeshape'" (wrongRet {:balance 2 :id 1} {:amount 2})))))
+    (is (= (adds {:balance 2 :id 1} {:amount 2}) {:balance 4 :id 1})))
+  (testing "Doc? and Attr-map? still work"
+    (is (= (:testmeta (meta #'adds)) "test")))
+  (testing "Pre asserts still work"
+    (is (thrown? AssertionError (adds {:balance 2 :id 1} {:amount -2}))))
+  (testing "Args fail when wrong shape"
+    (is (thrown-with-msg? Exception #"Passed an invalid 'typeshape'" (adds {:balance 2} {:amount 2}))))
+  (testing "Return uses the :post assertion"
+    (is (thrown-with-msg? AssertionError #"Assert failed" (wrongRet {:balance 2 :id 1} {:amount 2})))))
 
 ;; No types
 (deft noTypes [num [] account [:balance]] []
