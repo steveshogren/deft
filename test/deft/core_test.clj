@@ -55,13 +55,13 @@
     (is (= (get-name (Person. "t")) "t"))))
 
 ;; Multiple definitions
-(define Num [:val])
-(deft bad-add
-  ([num Num] Num (bad-add num {:val 0}))
+(def Num [:val])
+(deft goofy-add
+  ([num Num] Num (goofy-add num {:val 0}))
   ([num1 Num num2 Num] Num
      (assoc num1 :val (+ (:val num1) (:val num2)))))
 
 (deftest multiple-definitions-test
   (testing "The deft macro with multiple definitions"
-    (is (= (bad-add {:val 1}) {:val 1}))
-    (is (= (bad-add {:val 1} {:val 2}) {:val 3}))))
+    (is (= (goofy-add {:val 1}) {:val 1}))
+    (is (= (goofy-add {:val 1} {:val 2}) {:val 3}))))
