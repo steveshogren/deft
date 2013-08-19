@@ -48,6 +48,9 @@
         args (if hasAttr (rest args) args)]
     [{:doc doc :attr-map attr-map} args]))
 
+(defn add-post-assert [prepost rett]
+  (assoc prepost :post (conj (:post prepost) (list `is-type '% rett))))
+
 (defmacro deft [name & res]
   ^{:doc "(deft walk [duck Duck] Duck
      (body must return duck shape...))"
@@ -62,7 +65,7 @@
         cleanedArgs (vec (map gensym argnames))
         putBackArgs  (mapcat (fn [y] y) (map vector argnames cleanedArgs))
         expandedArgs (vec (mapcat (fn [x] x) (map vector argnames argtypes)))
-        prepost (clean-prepost prepost putBackArgs)
+        prepost (add-post-assert (clean-prepost prepost putBackArgs) rett)
         arglists (list [expandedArgs (symbol "->") rett])]
     (if (= 0 (mod (count args) 2))
       `(defn ~name
@@ -78,9 +81,7 @@
                        (map vector ~cleanedArgs ~argtypes)) ;; all params match type
              (let [~@putBackArgs
                    ret# ~body]
-               (if (is-type ret# ~rett)
-                 ret#
-                 (throw (Exception. (str "Returned an invalid 'typeshape'")))))
+               ret#)
              (throw (Exception. (str "Passed an invalid 'typeshape'"))))
            (let [~@putBackArgs]
              ~body)))
