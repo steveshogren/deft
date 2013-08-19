@@ -58,7 +58,7 @@
                   [name doc-string? attr-map? ([params*] prepost-map? body)+ attr-map?])}
 
   (let [[{doc :doc attrmap :attr-map} res] (parse-common-sig res)
-        [{args :args doc :doc body :body rett :rett attrmap :attr-map prepost :prepost}] (parse-defn-sig res)
+        [{args :args body :body rett :rett prepost :prepost}] (parse-multi-sig res)
         argpairs (partition 2 args)
         argnames (vec (map first argpairs))
         argtypes (vec (map second argpairs))
