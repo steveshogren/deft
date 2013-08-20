@@ -19,7 +19,8 @@
   (testing "The basic deft macro"
     (is (= (adds {:balance 2 :id 1} {:amount 2}) {:balance 4 :id 1})))
   (testing "Doc? and Attr-map? still work"
-    (is (= (:testmeta (meta #'adds)) "test")))
+    (is (= (:testmeta (meta #'adds)) "test"))
+    (is (= (:doc (meta #'adds)) "Adds a payment to an account")))
   (testing "Pre asserts still work"
     (is (thrown? AssertionError (adds {:balance 2 :id 1} {:amount -2}))))
   (testing "Args fail when wrong shape"

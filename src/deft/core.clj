@@ -13,9 +13,6 @@
             type)
     (instance? type coll)))
 
-(defn ^{:t :b} t [a] a )
-(meta #'t)
-
 (defn parse-defn-sig [args]
   (let [pargs (first args)
         rett (second args)
@@ -29,7 +26,6 @@
 
 ;;(parse-multi-sig '([first second] [] {:pre ""} (body))) 
 ;;(parse-multi-sig '(([first] [] (body1)) ([first second] [] {:pre 1} (body2)))) j
-
 (defn parse-multi-sig [args]
   (map parse-defn-sig (if (list? (first args)) args (list args))))
 
@@ -60,39 +56,36 @@
                putBackArgs  (mapcat (fn [y] y) (map vector argnames cleanedArgs))
                expandedArgs (vec (mapcat (fn [x] x) (map vector argnames argtypes)))
                prepost (add-post-assert (clean-prepost prepost putBackArgs) rett)
-               arglists (list [expandedArgs (symbol " -> ") rett])]
+               arglists [expandedArgs (symbol "->") rett]]
            (if (= 0 (mod (count args) 2))
-             `(~cleanedArgs
-               ~prepost
-               (if check-types-in-deft
-                 ;; all params match type
-                 (if (reduce (fn [oret# pair#] 
-                               (and oret# (is-type (first pair#) (second pair#))))
-                             true
-                             (map vector ~cleanedArgs ~argtypes)) 
-                   (let [~@putBackArgs
-                         ret# ~body]
-                     ret#)
-                   (throw (Exception. (str "Passed an invalid 'typeshape'"))))
-                 (let [~@putBackArgs]
-                   ~body)))
+             {:body `(~cleanedArgs
+                      ~prepost
+                      (if check-types-in-deft
+                        ;; all params match type
+                        (if (reduce (fn [oret# pair#] 
+                                      (and oret# (is-type (first pair#) (second pair#))))
+                                    true
+                                    (map vector ~cleanedArgs ~argtypes)) 
+                          (let [~@putBackArgs
+                                ret# ~body]
+                            ret#)
+                          (throw (Exception. (str "Passed an invalid 'typeshape'"))))
+                        (let [~@putBackArgs]
+                          ~body)))
+              :args arglists}
              (throw (Exception. (str "Missing a typeshape from the parameter vec"))))))
        bodies))
-
 
 (defmacro deft [name & res]
   ^{:doc "(deft walk [duck Duck] Duck
      (body must return duck shape...))"
     :arglists '([name doc-string? attr-map? [params*] prepost-map? body]
                   [name doc-string? attr-map? ([params*] prepost-map? body)+ attr-map?])}
-
   (let [[{doc :doc attrmap :attr-map} res] (parse-common-sig res)
-        bodies (create-mult-body-template (parse-multi-sig res))]
+        bodies-arglists (create-mult-body-template (parse-multi-sig res))
+        bodies (map :body bodies-arglists)
+        arglists (map :args bodies-arglists)
+        attrs (trace :attrs (merge attrmap {:arglists `'~arglists :doc doc}))]
       `(defn ~name
-         ~(merge attrmap
-                 {;; :arglists `'~arglists
-                  :doc doc})
+         ~attrs
          ~@bodies)))
-
-#_(pprint (macroexpand '(deft t ([x []] [] x) ([x [] y []] [] (+ x y)))))
-#_(deft t ([x []] [] x) ([x [] y []] [] (+ x y)))
