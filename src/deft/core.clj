@@ -1,5 +1,5 @@
 (ns deft.core
-  (:use [clojure.tools.trace]
+  (:use #_[clojure.tools.trace]
         [clojure.walk]))
 
 (def check-types-in-deft true)
@@ -85,7 +85,7 @@
         bodies-arglists (create-mult-body-template (parse-multi-sig res))
         bodies (map :body bodies-arglists)
         arglists (map :args bodies-arglists)
-        attrs (trace :attrs (merge attrmap {:arglists `'~arglists :doc doc}))]
+        attrs (merge attrmap {:arglists `'~arglists :doc doc})]
       `(defn ~name
          ~attrs
          ~@bodies)))

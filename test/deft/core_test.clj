@@ -65,4 +65,7 @@
 (deftest multiple-definitions-test
   (testing "The deft macro with multiple definitions"
     (is (= (goofy-add {:val 1}) {:val 1}))
-    (is (= (goofy-add {:val 1} {:val 2}) {:val 3}))))
+    (is (= (goofy-add {:val 1} {:val 2}) {:val 3})))
+  (testing "Deft arglists"
+    (is (= (-> #'goofy-add meta :arglists)
+           '([[num Num] -> Num] [[num1 Num num2 Num] -> Num])))))
