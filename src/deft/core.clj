@@ -73,11 +73,17 @@
              (throw (Exception. (str "Missing a typeshape from the parameter vec"))))))
        bodies))
 
-(defmacro deft [name & res]
-  ^{:doc "(deft walk [duck Duck] Duck
-     (body must return duck shape...))"
-    :arglists '([name doc-string? attr-map? [params*] prepost-map? body]
-                  [name doc-string? attr-map? ([params*] prepost-map? body)+ attr-map?])}
+(defmacro deft
+  {:doc "Use in place of a defn to create a 'typeshape' runtime safe function.
+The 'typeshape' can be either a vec of keywords or a clojure protocol
+or interface name. The parameters and return value will be checked at
+runtime. An empty vec turns off checking for that parameter.
+
+(deft inc [num [:value]] [:value]
+  {:value (+ (:value num) 1)}"
+   :arglists '([name doc-string? attr-map? [param+typeshapes*] typeshape prepost-map? body]
+                 [name doc-string? attr-map? ([param+typeshapes*] typeshape prepost-map? body)+ attr-map?])}
+  [name & res]
   (let [[{doc :doc attrmap :attr-map} res] (parse-common-sig res)
         bodies-arglists (create-mult-body-template (parse-multi-sig res))
         bodies (map :body bodies-arglists)
@@ -86,3 +92,4 @@
       `(defn ~name
          ~attrs
          ~@bodies)))
+

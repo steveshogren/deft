@@ -76,14 +76,10 @@ Since the definition of a typeshape is just a vec of keywords (or a Record), it 
 (pre-post {:val 1} {:val 0}) ;; => AssertionError
 (pre-post {:val 1} {:val 2} ;; => {:val 3}
 
-
-
 ```
 
 ## Todo
 
-* -Allow for multiple function signatures-
-* -Enable use of attr-map? and prepost-map?-
 * Allow syntax for nested maps, right now they are only flat
 
 ## Goals
