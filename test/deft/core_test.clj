@@ -69,3 +69,20 @@
   (testing "Deft arglists"
     (is (= (-> #'goofy-add meta :arglists)
            '([[num Num] -> Num] [[num1 Num num2 Num] -> Num])))))
+
+(deft pre-post "Test" {:horse "test"}
+  ([num Num] Num
+     {:pre [(pos? (:val num))]}
+     (goofy-add num {:val 0}))
+  ([num1 Num num2 Num] Num
+     {:pre [(pos? (:val num2))] :post [(< 2 (:val %))]}
+     (assoc num1 :val (+ (:val num1) (:val num2)))))
+
+(deftest multiple-definitions-pre-post-test
+  (testing "The deft macro with multiple definitions and pre-posts"
+    (is (= (pre-post {:val 1} {:val 2}) {:val 3}))
+    (is (thrown? AssertionError (pre-post {:val 0})))
+    (is (thrown? AssertionError (pre-post {:val 1} {:val 1})))
+    (is (thrown? AssertionError (pre-post {:val 1} {:val 0})))))
+
+

@@ -1,6 +1,5 @@
 (ns deft.core
-  (:use #_[clojure.tools.trace]
-        [clojure.walk]))
+  (:use [clojure.walk]))
 
 (def check-types-in-deft true)
 
@@ -24,8 +23,6 @@
     {:args pargs :body body
      :rett rett :prepost prepost}))
 
-;;(parse-multi-sig '([first second] [] {:pre ""} (body))) 
-;;(parse-multi-sig '(([first] [] (body1)) ([first second] [] {:pre 1} (body2)))) j
 (defn parse-multi-sig [args]
   (map parse-defn-sig (if (list? (first args)) args (list args))))
 
@@ -52,7 +49,7 @@
          (let [argpairs (partition 2 args)
                argnames (vec (map first argpairs))
                argtypes (vec (map second argpairs))
-               cleanedArgs (vec (map gensym argnames))
+               cleanedArgs (vec (map #(gensym (str % "_")) argnames))
                putBackArgs  (mapcat (fn [y] y) (map vector argnames cleanedArgs))
                expandedArgs (vec (mapcat (fn [x] x) (map vector argnames argtypes)))
                prepost (add-post-assert (clean-prepost prepost putBackArgs) rett)

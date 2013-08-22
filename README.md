@@ -33,11 +33,11 @@ That wasn't so bad, it simply gives you some handy verification of the in's and 
 
 ```
 
-Since the definition of a typeshape is just a vec of keywords, it is easy to "turn off" checking for any parameter or return value. Additionally, you do not have to import a namespace just to get at a "typeshape", you can just simply redefine it inline, like the account above.
+Since the definition of a typeshape is just a vec of keywords (or a Record), it is easy to "turn off" checking for any parameter or return value by using an empty vec. Additionally, you do not have to import a namespace just to get at a "typeshape", you can just simply redefine it inline, like the account above.
 
-Destructuring still works.
 
 ```clojure
+;; Destructuring still works.
 (def Coord [:x :y])
 (deft addX [pos Coord {x :x} Coord] Coord 
   (assoc pos :x (+ x (:x pos))))
@@ -45,23 +45,45 @@ Destructuring still works.
 (addX {:x 1 :y 100} {:x 1 :y 100})
 ;; => {:y 100 :x 2}
 
-```
 
-Passing in a larger map than needed is fine too.
-
-```clojure
+;; Passing in a larger map than needed is fine too.
 (deft adds [f [] s [:num]] []
   (+ f (:num s)))
-
 (adds 1 {:num 1 :date 2 :id 4})
 ;; => 2
+
+
+;; A record is a valid typeshape
+(defrecord Person [name])
+(deft get-name [p Person] [] (:name p))
+(get-name (Person. "t"))
+;; => "t"
+(get-name 1)
+;; => Exception Passed an invalid 'typeshape'
+
+
+;; All the original defn parameters should be supported
+(deft pre-post "Test" {:horse "test"}
+  ([num Num] Num
+     {:pre [(pos? (:val num))]}
+     (goofy-add num {:val 0}))
+  ([num1 Num num2 Num] Num
+     {:pre [(pos? (:val num2))] :post [(< 2 (:val %))]}
+     (assoc num1 :val (+ (:val num1) (:val num2)))))
+
+(pre-post {:val 0}) ;; => AssertionError
+(pre-post {:val 1} {:val 1}) ;; => AssertionError
+(pre-post {:val 1} {:val 0}) ;; => AssertionError
+(pre-post {:val 1} {:val 2} ;; => {:val 3}
+
+
 
 ```
 
 ## Todo
 
-* Allow for multiple function signatures 
-* Enable use of attr-map? and prepost-map?
+* -Allow for multiple function signatures-
+* -Enable use of attr-map? and prepost-map?-
 * Allow syntax for nested maps, right now they are only flat
 
 ## Goals
