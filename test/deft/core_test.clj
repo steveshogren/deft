@@ -45,6 +45,15 @@
   (testing "The deft macro"
     (is (= (addX {:x 1 :y 100} {:x 1 :y 100 :z 40}) {:y 100 :x 2}))))
 
+;; Java Types
+(deft adder [x Long y Long] Long
+  (+ x y))
+
+(deftest deft_types_test
+  (testing "Allows Java Types as typeshapes"
+    (is (thrown-with-msg? Exception #"Passed an invalid 'typeshape'" (adder "" 1)))
+    (is (= (adder 1 1) 2))))
+
 ;; Records
 (defrecord Person [name])
 (deft get-name [p Person] []
